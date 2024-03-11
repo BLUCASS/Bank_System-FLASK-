@@ -10,10 +10,11 @@ class UserManagement:
     def create_user(self, data) -> None:
         password = self.__make_hash(data["password"])
         user = User(name=data["name"].title(),
-                    email=data["email"],
+                    email=data["email"].lower(),
                     password=password)
         exists = DbManagement().search_email(data["email"])
-        if not exists: DbManagement().insert_user(user)
+        if exists: return False
+        DbManagement().insert_user(user)
 
     def delete_user(self, data) -> str:
         user = DbManagement().search_email(data["email"])
@@ -58,7 +59,7 @@ class DbManagement:
     
     def search_email(self, email) -> str:
         try:
-            user = session.query(User).filter(User.email == email).first()
+            user = session.query(User).filter(User.email == email.lower()).first()
             if user == None: raise ValueError
         except: return False
         else: return user

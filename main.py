@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template, url_for, request
+from flask import Flask, redirect, render_template, url_for, request, flash
 from controller import UserManagement, AccountManagement, DbManagement
 
 
@@ -15,7 +15,7 @@ def signup():
 @app.route('/user/signup/send', methods=['POST'])
 def send_signup():
     data = request.form
-    UserManagement().create_user(data)
+    if not UserManagement().create_user(data): flash("Email address already exists.")
     return redirect(url_for("signup"))
 
 @app.route('/user/delete', methods=['GET'])
@@ -37,6 +37,19 @@ def send_change_password():
     data = request.form
     UserManagement().change_password(data)
     return redirect(url_for("index"))
+
+@app.route('/user/signin', methods=['GET'])
+def signin():
+    return render_template("signin.html")
+
+@app.route('/user/signin/send', methods=['POST'])
+def send_signin():
+    return redirect(url_for("main_page"))
+    
+@app.route('/main_page', methods=['GET'])
+def main_page():
+    return render_template("main_page.html")
+
 
 if __name__ == '__main__':
     app.run(debug=True)
