@@ -1,0 +1,1 @@
+secret_key = 'palavra_passe_teste_sessoes_python_flask'

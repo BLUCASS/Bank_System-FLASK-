@@ -1,24 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up</title>
-</head>
-<body>  
+        formulario com os id/name:
+        name
+        email
+        password
 
+{% extends "base.html" %}
+
+{% block content %}
 <div class="column is-4 is-offset-4">
     <h3 class="title">Sign Up</h3>
     <div class="box">
-        
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <div class="notification-email">
-            {{ messages[0] }}. Go to <a href="/user/signin">Login page.</a>
-        </div>
-    {% endif %}
-    {% endwith %}
-        
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {{ messages[0] }}
+        {% endif %}
+        {% endwith %}
         <form method="POST" action="/user/signup/send">
             <div class="field">
                 <div class="control">
@@ -42,10 +37,4 @@
         </form>
     </div>
 </div>
-    
-    formulario com os id/name:
-    name
-    email
-    password
-</body>
-</html>
+{% endblock %}

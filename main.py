@@ -1,8 +1,9 @@
 from flask import Flask, redirect, render_template, url_for, request, flash
 from controller import UserManagement, AccountManagement, DbManagement
-
+from keys import secret_key
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = secret_key
 
 @app.route('/', methods=['GET'])
 def index():
