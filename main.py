@@ -1,9 +1,18 @@
 from flask import Flask, redirect, render_template, url_for, request, flash
 from controller import UserManagement, AccountManagement, DbManagement
 from keys import secret_key
+from flask_login import LoginManager
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secret_key
+login_manager = LoginManager()
+login_manager.login_view = 'app.main_page'
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    user = DbManagement().get_user(int(user_id))
+    return user
 
 @app.route('/', methods=['GET'])
 def index():

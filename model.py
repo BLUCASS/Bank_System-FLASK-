@@ -1,11 +1,12 @@
 from sqlalchemy import create_engine, String, Integer, Float, Column, ForeignKey
+from flask_login import UserMixin
 from sqlalchemy.orm import declarative_base, relationship
 
 engine = create_engine('sqlite:///data.db')
 Base = declarative_base()
 
 
-class User(Base):
+class User(UserMixin, Base):
     from random import randint
     """Creating the User's column"""
     __tablename__ = 'users'

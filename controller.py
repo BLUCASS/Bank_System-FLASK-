@@ -29,6 +29,12 @@ class UserManagement:
                 user.password = self.__make_hash(data["new_password"])
                 session.commit()
 
+    def login(self, email, type_password) -> None:
+        user = DbManagement().get_user(email)
+        password = self.__make_hash(type_password)
+        if user and password:
+            return
+
     def __make_hash(self, password) -> str:
         from hashlib import sha256
         password = sha256(password.encode()).hexdigest()
@@ -63,3 +69,7 @@ class DbManagement:
             if user == None: raise ValueError
         except: return False
         else: return user
+    
+    def get_user(self, id) -> int:
+        user = session.query(User).filter(User.id == id).first()
+        return user
