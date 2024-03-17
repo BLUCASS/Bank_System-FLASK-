@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+    {% block content %}
+    <a href="{{ url_for('signup') }}">Signup/Register</a></br>
+    <a href="{{ url_for('delete_user') }}">Delete User</a></br>
+    <a href="{{ url_for('change_password') }}">Change Password</a></br>
+    <a href="{{ url_for('signin') }}">Signin/Login</a></br>
+
+    {% endblock %}

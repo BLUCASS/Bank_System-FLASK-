@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+
+formulario com <id>
+reason
+value
+<form action="{{ url_for('send_deposit') }}" method="post">
+
+    <input type="text" name="reason">
+    <input type="number" name="value">
+    <button type="submit">Submit</button>
+
+</form>
+{% endblock %}

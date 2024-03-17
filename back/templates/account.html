@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    {{ messages[0] }}
+{% endif %}
+{% endwith %}
+
+
+{% if expenses %}
+{% for expense in expenses %}
+
+{{ expense.reason }} {{ expense.amount }} {{ expense.balance }} </br>
+
+{% endfor %}
+{% endif %}
+
+</br><a href="{{ url_for('withdraw') }}">Withdraw Money</a>
+</br><a href="{{ url_for('deposit') }}">Deposit Money</a>
+
+{% endblock %}

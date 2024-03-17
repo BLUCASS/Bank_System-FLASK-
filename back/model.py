@@ -26,6 +26,9 @@ class Account(Base):
     id = Column(Integer, primary_key=True)
     balance = Column(Float)
     owner_id = Column(Integer, ForeignKey("users.id", ondelete='CASCADE'), nullable=False)
+    reason = Column(String)
+    amount = Column(Float)
+    
     user = relationship("User", back_populates="account")
     # CRIAR UMA RELACAO COM A OUTRA CLASSE PELO NOME, BACK_POP = NOME DA CLASSE EM MINUSCULA
     # DECLARA O FOREIGN_KEY/ONDELETE CASCADE EM TODAS AS ORFAS
