@@ -47,7 +47,11 @@ class AccountManagement:
 
     def create_account(self, id) -> None:
         if self.__search_account(id): return False
-        account = Account(balance=0, owner_id=id, reason='Account Creation')
+        account = Account(transaction='Account Opening',
+                          reason='-',
+                          amount=0,
+                          balance=0, 
+                          owner_id=id)
         try: session.add(account)
         except: 
             session.rollback()
@@ -67,7 +71,8 @@ class AccountManagement:
         print(amount)
         if current_balance >= float(amount):
             current_balance -= float(amount)
-            expense = Account(balance=float(current_balance),
+            expense = Account(transaction='Withdraw',
+                              balance=float(current_balance),
                               owner_id=owner_id,
                               reason=reason,
                               amount=amount)
@@ -83,10 +88,11 @@ class AccountManagement:
         amount = round(float(amount), 2)
         current_balance += amount
         try:
-            expense = Account(balance=float(current_balance),
-                                owner_id=owner_id,
-                                reason=reason,
-                                amount=amount)
+            expense = Account(transaction='Deposit',
+                              balance=float(current_balance),
+                              owner_id=owner_id,
+                              reason=reason,
+                              amount=amount)
             session.add(expense)
         except:
             session.rollback()

@@ -85,12 +85,13 @@ def logout():
 @app.route('/main_page', methods=['GET'])
 @login_required
 def main_page():
-    return render_template("main_page.html")
+    return render_template("main_page.html", current_user=current_user)
 
 @app.route('/create/account/send', methods=['GET'])
 @login_required
 def send_create():
     id = current_user.id
+    AccountManagement().create_account(id)
     return redirect(url_for("main_page"))
 
 @app.route('/account/balance', methods=['GET'])

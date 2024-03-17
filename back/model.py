@@ -28,6 +28,7 @@ class Account(Base):
     owner_id = Column(Integer, ForeignKey("users.id", ondelete='CASCADE'), nullable=False)
     reason = Column(String)
     amount = Column(Float)
+    transaction = Column(String, nullable=False)
     
     user = relationship("User", back_populates="account")
     # CRIAR UMA RELACAO COM A OUTRA CLASSE PELO NOME, BACK_POP = NOME DA CLASSE EM MINUSCULA
