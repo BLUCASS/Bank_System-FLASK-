@@ -62,7 +62,15 @@ class AccountManagement:
 
     def get_balance(self, owner_id) -> str:
         data = session.query(Account).filter(Account.owner_id == owner_id).all()
-        return data
+        data_gathered = []
+        for object in data: # excluir essa funcao e retornar apenas o dado cru do db
+            data_json = {'balance': object.balance, 'reason': object.reason,
+                         'amount': object.amount, 'transaction': object.transaction}
+            data_gathered.append(data_json.copy())
+            data_json.clear()
+            #data_gathered.append(jsonify(data_json))
+        #return data
+        return data_gathered
 
     def withdraw_money(self, owner_id, reason, amount) -> bool:
         data = self.get_balance(owner_id)

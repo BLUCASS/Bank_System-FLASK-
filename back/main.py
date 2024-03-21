@@ -97,9 +97,11 @@ def send_create():
 @app.route('/account/balance', methods=['GET'])
 @login_required
 def view_balance():
+    from flask import jsonify
     owner_id = current_user.id
     expenses = AccountManagement().get_balance(owner_id)
-    if expenses: return render_template('account.html', expenses=expenses)
+    expenses_json = jsonify(expenses) # excluir essa var
+    if expenses: return render_template('account.html', expenses=expenses_json) # tirar o _json
     return redirect(url_for('main_page'))
 
 @app.route('/withdraw', methods=['GET'])
