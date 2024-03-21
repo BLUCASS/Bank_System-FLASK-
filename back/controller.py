@@ -61,8 +61,6 @@ class AccountManagement:
             return True
 
     def get_balance(self, owner_id) -> str:
-        from flask import jsonify
-        from json import dumps
         data = session.query(Account).filter(Account.owner_id == owner_id).all()
         data_gathered = []
         for object in data: # excluir essa funcao e retornar apenas o dado cru do db
