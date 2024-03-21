@@ -18,12 +18,12 @@ const Loguin = () => {
   const handleSubmit = async event => {
     event.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/user/signup', formData);
+      const response = await axios.post('http://127.0.0.1:5000/user/signup', formData);
       console.log('Response:', response.data);
-      // Handle success response, e.g., redirect to another page or update state
+      
     } catch (error) {
       console.error('Error:', error);
-      // Handle error response, e.g., display an error message to the user
+      
     }
   };
 
