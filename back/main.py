@@ -101,8 +101,9 @@ def view_balance():
     owner_id = current_user.id
     expenses = AccountManagement().get_balance(owner_id)
     expenses_json = jsonify(expenses) # excluir essa var
-    if expenses: return render_template('account.html', expenses=expenses_json) # tirar o _json
-    return redirect(url_for('main_page'))
+    return expenses_json
+    # if expenses: return render_template('account.html', expenses=expenses_json) # tirar o _json
+    # return redirect(url_for('main_page'))
 
 @app.route('/withdraw', methods=['GET'])
 @login_required
