@@ -12,7 +12,7 @@ class User(UserMixin, Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False)
-    email = Column(String(50), nullable=False)
+    email = Column(String(50), nullable=False, unique=True)
     password = Column(String(80), nullable=False)
     ppsn = Column(Integer, default=randint(111111, 999999))
     account = relationship("Account", back_populates="user", cascade="all, delete-orphan")

@@ -2,10 +2,15 @@
 
 {% block content %}
 
-this is the main page
+<!-- MENSAGENS DE ERROS RETORNADAS DO BACK -->
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    {{ messages[0] }}
+{% endif %}
+{% endwith %}
 
 </br><a href="{{ url_for('logout') }}">Logout</a>
-</br><a href="{{ url_for('send_create') }}">Create Account</a>
+</br><a href="{{ url_for('create') }}">Create Account</a>
 </br><a href="{{ url_for('view_balance') }}">Bank Account</a>
 
 {% endblock %}

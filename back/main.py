@@ -11,133 +11,154 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'signin' # This is the page it will redirect all the unauthorized users
 
-# CREATING THE METHOD TO LOG THE USER IN
+
+################# DEALING WITH LOGIN/LOGOUT #################
+# CREATING THE CACHE FOR THE LOGGED USER
 @login_manager.user_loader
 def load_user(user_id):
     user = DbManagement().get_user(int(user_id))
     return user
 
-# THIS IS THE HOME PAGE
+# EXPIRING THE USER'S SESSION
+@app.route('/logout', methods=['GET'])
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("signin"))
+
+
+
+################# DEALING WITH THE USER #################
 @app.route('/', methods=['GET'])
 def index():
     return render_template("index.html")
 
 # SIGNUP PAGE
-@app.route('/user/signup', methods=['GET'])
+@app.route('/user/signup', methods=['GET', 'POST'])
 def signup():
-    return render_template('signup.html')
+    if request.method == 'GET':
+        return render_template('signup.html')
+    
+    data = request.json
+    name = data["name"]
+    password = data["password"]
+    email = data["email"]
+    user = UserManagement().create_user(name=name, email=email, password=password)
+    if not user:
+        flash("Email address already exists. Please, go to the login page.")
+        return redirect(url_for("signup"))
+    login_user(user)
+    return redirect(url_for("main_page"))
 
-# SIGNUP PAGE POST
-@app.route('/user/signup/send', methods=['POST'])
-def send_signup():
-    data = request.form
-    if not UserManagement().create_user(data): flash("Email address already exists.")
-    return redirect(url_for("signup"))
-
-# DELETE USER
-@app.route('/user/delete', methods=['GET'])
-def delete_user():
-    return render_template('delete_user.html')
-
-# DELETE USER POST
-@app.route('/user/delete/send', methods=['POST'])
-def send_delete():
-    data = request.form
-    UserManagement().delete_user(data)
-    return redirect(url_for("delete_user"))
-
-# CHANGE USER'S PASSWORD
-@app.route('/user/password', methods=['GET'])
-def change_password():
-    return render_template("change_password.html")
-
-# CHANGE USER'S PASSWORD POST
-@app.route('/user/password/change', methods=['POST'])
-def send_change_password():
-    data = request.form
-    UserManagement().change_password(data)
-    return redirect(url_for("index"))
-
-# SIGIN/LOGIN PAGE
-@app.route('/user/signin', methods=['GET'])
+# SIGNIN/LOGIN PAGE
+@app.route('/user/signin', methods=['GET', 'POST'])
 def signin():
-    return render_template("signin.html")
-
-# SIGIN/LOGIN PAGE POST
-@app.route('/user/signin/send', methods=['POST'])
-def send_signin():
-    email = request.form.get("email")
-    pwd = request.form.get("password")
-    user = UserManagement().login(email, pwd)
+    if request.method == 'GET':
+        return render_template("signin.html")
+    
+    data = request.json
+    email = data["email"]
+    password = data["password"]
+    user = UserManagement().login(email, password)
     if user:
         login_user(user)
         return redirect(url_for("main_page"))
     flash('User or password do not match')
+    return redirect(url_for("main_page"))
+
+# DELETE USER
+@app.route('/user/delete', methods=['GET', 'DELETE'])
+@login_required
+def delete_user():
+    if request.method == 'GET':
+        return render_template('delete_user.html')
+    
+    UserManagement().delete_user(current_user.id)
     return redirect(url_for("signin"))
 
-# EXPIRING THE USER'S SESSION
-@app.route('/logout', methods=['GET'])
-def logout():
-    logout_user()
-    return redirect(url_for("signin"))
+# CHANGE USER'S PASSWORD
+@app.route('/user/password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    if request.method == 'GET':
+        return render_template("change_password.html")
+    
+    data = request.json
+    old_password = data["old_password"]
+    new_password = data["new_password"]
+    ok = UserManagement().change_password(old_password, new_password, current_user)
+    if not ok: 
+        flash('Password do not match')
+        return render_template("change_password.html")
+    flash("Password changed successfully")
+    return redirect(url_for("index"))
 
 # CREATING THE MAIN PAGE FOR THE USER
 @app.route('/main_page', methods=['GET'])
 @login_required
 def main_page():
-    return render_template("main_page.html", current_user=current_user)
+    return render_template("main_page.html")
 
-@app.route('/create/account/send', methods=['GET'])
+
+
+################# DEALING WITH THE ACCOUNT #################
+
+# CREATING THE OPTION FOR THE USER TO CREATE AN ACCOUNT
+@app.route('/create/account', methods=['GET'])
 @login_required
-def send_create():
+def create():
     id = current_user.id
-    AccountManagement().create_account(id)
-    return redirect(url_for("main_page"))
+    created = AccountManagement().create_account(id)
+    if not created:
+        flash('Account not created.')
+        return redirect(url_for("main_page"))
+    return redirect(url_for('view_balance'))
 
+# GETTING THE USER'S BALANCE THROUGH A JSON FILE
 @app.route('/account/balance', methods=['GET'])
 @login_required
 def view_balance():
     from flask import jsonify
     owner_id = current_user.id
     expenses = AccountManagement().get_balance(owner_id)
-    expenses_json = jsonify(expenses) # excluir essa var
+    expenses_json = jsonify(expenses)
     return expenses_json
-    # if expenses: return render_template('account.html', expenses=expenses_json) # tirar o _json
-    # return redirect(url_for('main_page'))
 
-@app.route('/withdraw', methods=['GET'])
+# CREATING THE OPTION FOR THE USER TO WITHDRAW MONEY
+@app.route('/withdraw', methods=['GET', 'POST'])
 @login_required
 def withdraw():
-    return render_template('withdraw.html')
-
-@app.route('/withdraw/send', methods=['POST'])
-@login_required
-def send_withdraw():
+    if request.method == 'GET':
+        return render_template('withdraw.html')
+    
+    data = request.json
     owner_id = current_user.id
-    reason = request.form.get("reason")
-    value = request.form.get("value")
-
-    if AccountManagement().withdraw_money(owner_id, reason, value):
+    reason = data["reason"]
+    value = data["value"]
+    
+    ok = AccountManagement().withdraw_money(owner_id, reason, value)
+    if ok:
         return redirect(url_for('view_balance'))
     flash('You do not have enough money. Please, make a deposit first.')
     return redirect(url_for('view_balance'))
 
-@app.route('/deposit', methods=['GET'])
+# CREATING THE OPTION FOR THE USER TO DEPOSIT MONEY
+@app.route('/deposit', methods=['GET', 'POST'])
 @login_required
 def deposit():
-    return render_template('deposit.html')
-
-@app.route('/deposit/send', methods=['POST'])
-@login_required
-def send_deposit():
+    if request.method == 'GET':
+        return render_template('deposit.html')
+    
+    data = request.json
     owner_id = current_user.id
-    reason = request.form.get("reason")
-    value = request.form.get("value")
-
-    if AccountManagement().deposit_money(owner_id, reason, value):
+    reason = data["reason"]
+    value = data["value"]
+    ok = AccountManagement().deposit_money(owner_id, reason, value)
+    if ok:
         return redirect(url_for('view_balance'))
     flash('An error has ocurred. Please, try again.')
     return redirect(url_for('view_balance'))
+
 
 
 # RUNNING THE APP
