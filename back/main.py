@@ -33,6 +33,10 @@ def logout():
 def index():
     return make_response(200)
 
+@app.route('/home', methods=['GET'])
+def home():
+    return 200
+
 # SIGNUP PAGE
 @app.route('/user/signup', methods=['GET', 'POST'])
 def signup():
