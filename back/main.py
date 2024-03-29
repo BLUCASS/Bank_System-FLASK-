@@ -24,24 +24,20 @@ def load_user(user_id):
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for("signin"))
+    return make_response(jsonify({'message': 'Redirect to the signin/login page'}), 200)
 
 
 
 ################# DEALING WITH THE USER #################
 @app.route('/', methods=['GET'])
 def index():
-    return make_response(200)
-
-@app.route('/home', methods=['GET'])
-def home():
-    return 200
+    return make_response(jsonify({'message': 'Success'}), 200)
 
 # SIGNUP PAGE
 @app.route('/user/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'GET':
-        return make_response(200)
+        return make_response(jsonify({'message': 'Success'}), 200)
     
     data = request.json
     name = data["name"]
@@ -49,15 +45,15 @@ def signup():
     email = data["email"]
     user = UserManagement().create_user(name=name, email=email, password=password)
     if not user:
-        return make_response(jsonify({'message':'Email address already exists. Please, go to the login page.'}), 400)
+        return make_response(jsonify({'message':'Email address already exists. Please, go to the login page.'}), 500)
     login_user(user)
-    return redirect(url_for("main_page"))
+    return make_response(jsonify({'message': 'Redirect to the main_page'}), 200)
 
 # SIGNIN/LOGIN PAGE
 @app.route('/user/signin', methods=['GET', 'POST'])
 def signin():
     if request.method == 'GET':
-        return make_response(200)
+        return make_response(jsonify({'message': 'Success'}), 200)
     
     data = request.json
     email = data["email"]
@@ -65,9 +61,8 @@ def signin():
     user = UserManagement().login(email, password)
     if user:
         login_user(user)
-        return redirect(url_for("main_page"))
-    return make_response(jsonify({'message': 'User or password do not match'}), 400)
-
+        return make_response(jsonify({'message': 'Redirect to the main_paige'}), 200)
+    return make_response(jsonify({'message': 'User or password do not match'}), 500)
 
 
 # DELETE USER
@@ -75,24 +70,25 @@ def signin():
 @login_required
 def delete_user():
     if request.method == 'GET':
-        return make_response(200)
+        return make_response(jsonify({'message': 'Success'}), 200)
     
     UserManagement().delete_user(current_user.id)
-    return redirect(url_for("signin"))
+    return make_response(jsonify({'message': 'Redirect to the signin/login page'}), 200)
+
 
 # CHANGE USER'S PASSWORD
 @app.route('/user/password', methods=['GET', 'POST'])
 @login_required
 def change_password():
     if request.method == 'GET':
-        return make_response(200)
+        return make_response(jsonify({'message': 'Success'}), 200)
     
     data = request.json
     old_password = data["old_password"]
     new_password = data["new_password"]
     ok = UserManagement().change_password(old_password, new_password, current_user)
     if not ok: 
-        return make_response(jsonify({'message': 'Passwords do not match'}), 400)
+        return make_response(jsonify({'message': 'Passwords do not match'}), 500)
     return make_response(jsonify({'message': 'Password changed successfully'}), 200)
 
 
@@ -100,7 +96,7 @@ def change_password():
 @app.route('/main_page', methods=['GET'])
 @login_required
 def main_page():
-    return make_response(200)
+    return make_response(jsonify({'message': 'Success'}), 200)
 
 
 
@@ -113,8 +109,8 @@ def create():
     id = current_user.id
     created = AccountManagement().create_account(id)
     if not created:
-        return make_response(jsonify({'message': 'Account not created.'}), 400)
-    return redirect(url_for('view_balance'))
+        return make_response(jsonify({'message': 'Account not created.'}), 500)
+    return make_response(jsonify({'message': 'Redirect to the view_balance page.'}), 200)
 
 # GETTING THE USER'S BALANCE THROUGH A JSON FILE
 @app.route('/account/balance', methods=['GET'])
@@ -124,14 +120,16 @@ def view_balance():
     owner_id = current_user.id
     expenses = AccountManagement().get_balance(owner_id)
     expenses_json = jsonify(expenses)
-    return expenses_json
+    return make_response(expenses_json, 200)
+    ####################################################
+    # return expenses_json
 
 # CREATING THE OPTION FOR THE USER TO WITHDRAW MONEY
 @app.route('/withdraw', methods=['GET', 'POST'])
 @login_required
 def withdraw():
     if request.method == 'GET':
-        return make_response(200)
+        return make_response(jsonify({'message': 'Success'}), 200)
     
     data = request.json
     owner_id = current_user.id
@@ -140,15 +138,15 @@ def withdraw():
     
     ok = AccountManagement().withdraw_money(owner_id, reason, value)
     if ok:
-        return redirect(url_for('view_balance'))
-    return make_response(jsonify({'message': 'You do not have enough money. Please, make a deposit first.'}), 400)
+        return make_response(jsonify({'message': 'Redirect to the view_balance page.'}), 200)
+    return make_response(jsonify({'message': 'You do not have enough money. Please, make a deposit first.'}), 500)
 
 # CREATING THE OPTION FOR THE USER TO DEPOSIT MONEY
 @app.route('/deposit', methods=['GET', 'POST'])
 @login_required
 def deposit():
     if request.method == 'GET':
-        return make_response(200)
+        return make_response(jsonify({'message': 'Success'}), 200)
     
     data = request.json
     owner_id = current_user.id
@@ -156,8 +154,8 @@ def deposit():
     value = data["value"]
     ok = AccountManagement().deposit_money(owner_id, reason, value)
     if ok:
-        return redirect(url_for('view_balance'))
-    return make_response(jsonify({'message': 'An error has ocurred. Please, try again.'}), 400)
+        return make_response(jsonify({'message': 'Redirect to the view_balance page.'}), 200)
+    return make_response(jsonify({'message': 'An error has ocurred. Please, try again.'}), 500)
 
 
 
